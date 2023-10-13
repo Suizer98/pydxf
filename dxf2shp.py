@@ -1,3 +1,9 @@
+"""
+Convert dxf file to shapefile (ESRI format).
+Supposedly, in a typical ESRI Shapefile,
+all the geometries within a single shapefile must be of the same type.
+"""
+
 import os
 from os import path
 from osgeo import ogr
