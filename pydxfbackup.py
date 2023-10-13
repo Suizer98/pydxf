@@ -23,28 +23,29 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
     # Create the driver before the loop
     drv = ogr.GetDriverByName("ESRI Shapefile")
 
-    # Open the DXF data source
+    # open datasource
     ds = ogr.Open(dxfFile)
     if ds is None:
         return -1
 
     unique_geometry_types = set()  # To store unique geometry types
 
-    # Iterate through features in the layer and collect unique geometry types and field names
-    field_names = set()  # To store unique field names
-
+    # Find all layers in the DXF file and iterate through them
     for layer in ds:
-        layer_name = layer.GetName()
+        layer_name = layer.GetName()  # Get the name of the layer
         p = re.compile(layerFilter)
         if not p.search(layer_name) is None:
             lyr = ds.GetLayerByName(layer_name)
             lyr.ResetReading()
             feat_defn = lyr.GetLayerDefn()
             fid = {}
-
+            # find Layer & EntityHandle column in input
             for i in range(feat_defn.GetFieldCount()):
                 field_defn = feat_defn.GetFieldDefn(i)
-                field_names.add(field_defn.GetName())
+                if field_defn.GetName() == "Layer":
+                    fid["Layer"] = i
+                elif field_defn.GetName() == "EntityHandle":
+                    fid["EntityHandle"] = i
 
             # Iterate through features in the layer and collect unique geometry types
             for feat in lyr:
@@ -59,12 +60,20 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
         do = drv.CreateDataSource(shp_layer_file)
         if do is None:
             return 1
-        lyro = do.CreateLayer("out", None, ogr.wkbUnknown)
-
-        # Create fields in the output shapefile for all field names found in the DXF file
-        for field_name in field_names:
-            field_defn = ogr.FieldDefn(field_name, ogr.OFTString)
-            lyro.CreateField(field_defn)
+        lyro = do.CreateLayer(
+            "out", None, ogr.wkbUnknown
+        )  # Use ogr.wkbUnknown to accept any geometry type
+        if lyro is None:
+            return 1
+        # add two fields to output LAYER and ENTITYHAND
+        field_defn = ogr.FieldDefn("LAYER", ogr.OFTString)
+        field_defn.SetWidth(32)
+        if lyro.CreateField(field_defn) != 0:
+            return 1
+        field_defn = ogr.FieldDefn("ENTITYHAND", ogr.OFTString)
+        field_defn.SetWidth(8)
+        if lyro.CreateField(field_defn) != 0:
+            return 1
 
         # Find the layers containing the current geometry type and copy features to the corresponding shapefile
         for layer in ds:
@@ -73,6 +82,15 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
             if not p.search(layer_name) is None:
                 lyr = ds.GetLayerByName(layer_name)
                 lyr.ResetReading()
+                feat_defn = lyr.GetLayerDefn()
+                fid = {}
+                for i in range(feat_defn.GetFieldCount()):
+                    field_defn = feat_defn.GetFieldDefn(i)
+                    if field_defn.GetName() == "Layer":
+                        fid["Layer"] = i
+                    elif field_defn.GetName() == "EntityHandle":
+                        fid["EntityHandle"] = i
+
                 for feat in lyr:
                     geom = feat.GetGeometryRef()
                     if geom is None:
@@ -80,13 +98,12 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
                     if geom.GetGeometryName() == geom_type:
                         feato = ogr.Feature(lyro.GetLayerDefn())
                         feato.SetGeometry(geom)
-
-                        # Copy all fields from the DXF feature to the output shapefile feature
-                        for field_name in field_names:
-                            feato.SetField(field_name, feat.GetField(field_name))
-
+                        feato.SetField("LAYER", feat.GetField(fid["Layer"]))
+                        feato.SetField("ENTITYHAND", feat.GetField(fid["EntityHandle"]))
                         lyro.CreateFeature(feato)
 
+    ds = None
+    dso = None
     return 0
 
 
@@ -99,12 +116,11 @@ def dxf2shp(dxf_file_path=None, shp_file_path=None):
     # enter regexp to filter layers
     dxf_layer_filter = ".*"
     res = convert(dxf_name, target_name, dxf_layer_filter)
+    print(res)
     if res == 0:
         # load the shape
         (shpdir, shpfile) = path.split(target_name)
         print(f"{shpdir} {shpfile} is created")
-    else:
-        print("Error occurred! Please check file format.")
 
 
 def matplot(dxf_datasource=None):
