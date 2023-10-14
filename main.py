@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse
 from starlette.responses import RedirectResponse
 import uvicorn
 
@@ -45,8 +46,23 @@ async def upload_dxf_file(file: UploadFile):
     return {
         "message": "File uploaded and converted successfully",
         "file_name": file.filename,
+        "geojson_download_link": f"/pydxf/download/{file.filename.replace('.dxf', '.geojson')}",
     }
+
+
+@app.get("/pydxf/download/")
+async def download_geojson(file_name: str):
+    geojson_path = os.path.join(f"{DATA_DIR}/Output", file_name)
+    if os.path.exists(geojson_path):
+        return FileResponse(
+            geojson_path,
+            media_type="application/geo+json",
+            headers={"Content-Disposition": f"attachment; filename={file_name}"},
+        )
+    else:
+        return {"error": "GeoJSON file not found."}
 
 
 if __name__ == "__main__":
     uvicorn.run(app)
+# uvicorn main:app --reload
