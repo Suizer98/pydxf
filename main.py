@@ -25,7 +25,7 @@ def read_root():
     return {"This is an alpha backend code for converting dxf"}
 
 
-@app.post("/pydxf/upload/")
+@app.post("/pydxf/geojson/upload/")
 async def upload_dxf_file(file: UploadFile):
     # Check if the file has a valid DXF extension
     if not file.filename.lower().endswith(".dxf"):
@@ -50,7 +50,7 @@ async def upload_dxf_file(file: UploadFile):
     }
 
 
-@app.get("/pydxf/download/")
+@app.get("/pydxf/geojson/download/")
 async def download_geojson(file_name: str):
     geojson_path = os.path.join(f"{DATA_DIR}/Output", file_name)
     if os.path.exists(geojson_path):
