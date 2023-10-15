@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  pydxf:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: uvicorn main:app --reload
+    image: pydxf
+    volumes:
+      - .:/app
+    ports:
+      - '8000:8000'
