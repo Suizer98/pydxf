@@ -1,6 +1,8 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, UploadFile
 from fastapi.responses import FileResponse
 from starlette.responses import RedirectResponse
+from fastapi.responses import JSONResponse
+
 import uvicorn
 
 import os
@@ -23,6 +25,18 @@ def read_root():
 @app.get("/pydxf/")
 def read_root():
     return {"This is an alpha backend code for converting dxf"}
+
+
+@app.get("/pydxf/geojson")
+async def get_geojson(file_name: str):
+    geojson_path = os.path.join(f"{DATA_DIR}/Output", file_name)
+    if os.path.exists(geojson_path):
+        # Read the GeoJSON file and return its content as a response
+        with open(geojson_path, "r") as f:
+            geojson_content = f.read()
+        return JSONResponse(content=geojson_content, media_type="application/geo+json")
+    else:
+        return {"error": "GeoJSON file not found."}
 
 
 @app.post("/pydxf/geojson/upload")
