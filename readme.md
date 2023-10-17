@@ -5,8 +5,14 @@
 ## Description
 To enable showing of dxf and dwg engineering CAD files on webgis in the future, I am figuring solutions to allow this happen on the aplha backend first.
 
-### Preparing environment
+### Local development
 
-You may create your own conda environment or run pip packages setup below:
+You may create your own local environment using command below:
 
-```pip install -r requirements.txt```
+```docker-compose up --build```
+
+### Code formatting
+
+To liaise with py code formatting tool *black* standard, run:
+
+```docker exec pydxf black .```
