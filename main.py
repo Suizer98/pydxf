@@ -3,7 +3,7 @@ from starlette.responses import RedirectResponse
 
 import uvicorn
 
-from app.geojson import router as geojson_router
+from app.routes.geojson import router as geojson_router
 
 app = FastAPI()
 
