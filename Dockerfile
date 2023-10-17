@@ -10,7 +10,6 @@ RUN set -xe \
     && apt-get update -y --no-install-recommends \
     && apt-get install -y --no-install-recommends \
         python3-pip \
-        python3.10 \
         gdal-bin \
         libgdal-dev
 
