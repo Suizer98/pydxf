@@ -1,5 +1,4 @@
 import os
-import re
 import geopandas as gpd
 
 dxf_file_path = os.path.join(os.getcwd(), "WO_1901_015", "KHT00219_P1.dxf")
