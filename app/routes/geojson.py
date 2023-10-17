@@ -41,7 +41,7 @@ async def upload_dxf_file(file: UploadFile):
     return {
         "message": "File uploaded and converted successfully",
         "file_name": file.filename,
-        "geojson_download_link": f"/pydxf/download/{file.filename.replace('.dxf', '.geojson')}",
+        "geojson_download_link": f"/pydxf/geojson/download?{file.filename.replace('.dxf', '.geojson')}",
     }
 
 
