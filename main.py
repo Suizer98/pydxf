@@ -4,6 +4,7 @@ from starlette.responses import RedirectResponse
 import uvicorn
 
 from app.routes.geojson import router as geojson_router
+from app.routes.shapefiles import router as shp_router
 
 app = FastAPI()
 
@@ -20,6 +21,7 @@ def main_route():
 
 # Include the router under the '/pydxf' path
 app.include_router(geojson_router, prefix="/pydxf")
+app.include_router(shp_router, prefix="/pydxf")
 
 if __name__ == "__main__":
     # uvicorn main:app --reload

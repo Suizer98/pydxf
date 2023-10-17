@@ -45,7 +45,6 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
             lyr = ds.GetLayerByName(layer_name)
             lyr.ResetReading()
             feat_defn = lyr.GetLayerDefn()
-            fid = {}
 
             for i in range(feat_defn.GetFieldCount()):
                 field_defn = feat_defn.GetFieldDefn(i)

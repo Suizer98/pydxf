@@ -2,7 +2,6 @@ import os
 from os import path
 from osgeo import ogr
 import matplotlib.pyplot as plt
-import sys
 import re
 
 dxf_file_path = os.path.join(os.getcwd(), "WO_1901_015", "KHT00219_P1.dxf")
@@ -103,7 +102,6 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
                         lyro.CreateFeature(feato)
 
     ds = None
-    dso = None
     return 0
 
 
