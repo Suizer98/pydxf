@@ -7,3 +7,5 @@ fastapi
 starlette
 uvicorn
 python-multipart
+black
+flake8

@@ -16,3 +16,7 @@ You may create your own local environment using command below:
 To liaise with py code formatting tool *black* standard, run:
 
 ```docker exec pydxf black .```
+
+Check and remove unused modules with *flake8*:
+
+```docker exec pydxf flake8 .```
