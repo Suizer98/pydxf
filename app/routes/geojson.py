@@ -12,15 +12,15 @@ os.makedirs(f"{DATA_DIR}/Files", exist_ok=True)
 os.makedirs(f"{DATA_DIR}/Output", exist_ok=True)
 
 
-@router.get("/geojson")
-async def get_geojson(file_name: str):
-    geojson_path = os.path.join(f"{DATA_DIR}/Output", file_name)
-    if os.path.exists(geojson_path):
-        with open(geojson_path, "r") as f:
-            geojson_content = f.read()
-        return JSONResponse(content=geojson_content, media_type="application/geo+json")
-    else:
-        return {"error": "GeoJSON file not found."}
+# @router.get("/geojson")
+# async def get_geojson(file_name: str):
+#     geojson_path = os.path.join(f"{DATA_DIR}/Output", file_name)
+#     if os.path.exists(geojson_path):
+#         with open(geojson_path, "r") as f:
+#             geojson_content = f.read()
+#         return JSONResponse(content=geojson_content, media_type="application/geo+json")
+#     else:
+#         return {"error": "GeoJSON file not found."}
 
 
 @router.post("/geojson/upload")
@@ -47,12 +47,14 @@ async def upload_dxf_file(file: UploadFile):
 
 @router.get("/geojson/download")
 async def download_geojson(file_name: str):
-    geojson_path = os.path.join(f"{DATA_DIR}/Output", file_name)
+    geojson_path = os.path.join(f"{DATA_DIR}/Output", file_name + ".geojson")
     if os.path.exists(geojson_path):
         return FileResponse(
             geojson_path,
             media_type="application/geo+json",
-            headers={"Content-Disposition": f"attachment; filename={file_name}"},
+            headers={
+                "Content-Disposition": f"attachment; filename={file_name}.geojson"
+            },
         )
     else:
         return {"error": "GeoJSON file not found."}

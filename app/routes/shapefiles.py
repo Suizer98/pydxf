@@ -15,19 +15,19 @@ os.makedirs(f"{DATA_DIR}/Files", exist_ok=True)
 os.makedirs(f"{DATA_DIR}/Output", exist_ok=True)
 
 
-@router.get("/shp")
-async def get_shapefiles(file_name: str):
-    matching_shapefiles = []
+# @router.get("/shp")
+# async def get_shapefiles(file_name: str):
+#     matching_shapefiles = []
 
-    for root, _, files in os.walk(f"{DATA_DIR}/Output"):
-        for file in files:
-            if file.startswith(file_name) and file.endswith(".shp"):
-                matching_shapefiles.append(file)
+#     for root, _, files in os.walk(f"{DATA_DIR}/Output"):
+#         for file in files:
+#             if file.startswith(file_name) and file.endswith(".shp"):
+#                 matching_shapefiles.append(file)
 
-    if matching_shapefiles:
-        return JSONResponse(content=matching_shapefiles, media_type="application/json")
-    else:
-        return {"error": "Matching shapefiles not found."}
+#     if matching_shapefiles:
+#         return JSONResponse(content=matching_shapefiles, media_type="application/json")
+#     else:
+#         return {"error": "Matching shapefiles not found."}
 
 
 @router.post("/shp/upload")
