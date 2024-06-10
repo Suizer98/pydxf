@@ -5,6 +5,9 @@
 ## Description
 To enable showing of dxf and dwg engineering CAD files on webgis in the future, I am figuring solutions to allow this happen on the aplha backend first.
 
+Tech stacks:
+![Tech stacks](https://skillicons.dev/icons?i=fastapo,python,docker,ubuntu,bash,autocad)
+
 ### Local development
 
 You may create your own local environment using command below:
