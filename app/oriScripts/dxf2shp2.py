@@ -1,44 +1,29 @@
 import os
 from os import path
 from osgeo import ogr
-import matplotlib.pyplot as plt
 import re
-
-dxf_file_path = os.path.join(os.getcwd(), "WO_1901_015", "KHT00219_P1.dxf")
-shp_file_path = os.path.splitext(dxf_file_path)[0] + ".shp"
-
-# Open the DXF file
-dxf_datasource = ogr.Open(dxf_file_path)
-print(dxf_datasource)
 
 
 def convert(dxfFile, shpFile, layerFilter=".*"):
-    # Check if the output shapefile already exists
     if path.exists(shpFile):
-        # If it exists, delete it to replace it
         drv = ogr.GetDriverByName("ESRI Shapefile")
         drv.DeleteDataSource(shpFile)
 
-    # Create the driver before the loop
     drv = ogr.GetDriverByName("ESRI Shapefile")
-
-    # open datasource
     ds = ogr.Open(dxfFile)
     if ds is None:
         return -1
 
-    unique_geometry_types = set()  # To store unique geometry types
+    unique_geometry_types = set()
 
-    # Find all layers in the DXF file and iterate through them
     for layer in ds:
-        layer_name = layer.GetName()  # Get the name of the layer
+        layer_name = layer.GetName()
         p = re.compile(layerFilter)
         if not p.search(layer_name) is None:
             lyr = ds.GetLayerByName(layer_name)
             lyr.ResetReading()
             feat_defn = lyr.GetLayerDefn()
             fid = {}
-            # find Layer & EntityHandle column in input
             for i in range(feat_defn.GetFieldCount()):
                 field_defn = feat_defn.GetFieldDefn(i)
                 if field_defn.GetName() == "Layer":
@@ -46,7 +31,6 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
                 elif field_defn.GetName() == "EntityHandle":
                     fid["EntityHandle"] = i
 
-            # Iterate through features in the layer and collect unique geometry types
             for feat in lyr:
                 geom = feat.GetGeometryRef()
                 if geom is None:
@@ -121,26 +105,34 @@ def dxf2shp(dxf_file_path=None, shp_file_path=None):
         print(f"{shpdir} {shpfile} is created")
 
 
-def matplot(dxf_datasource=None):
-    # Iterate through layers and plot features
+def matplot(dxf_datasource):
+    import matplotlib.pyplot as plt
+    
+    plt.figure(figsize=(10, 8))
     for layer_idx in range(dxf_datasource.GetLayerCount()):
         layer = dxf_datasource.GetLayerByIndex(layer_idx)
-        layer_name = layer.GetName()  # Get the name of the layer
-        print(f"Layer {layer_idx + 1}: {layer_name}")
+        layer.ResetReading()
 
-        # Iterate through features in the layer
-        for feature in layer:
-            geometry = feature.GetGeometryRef()
-            x = []
-            y = []
+        x_coords = []
+        y_coords = []
 
-            if geometry.GetGeometryName() == "LINESTRING":
-                for i in range(geometry.GetPointCount()):
-                    x.append(geometry.GetX(i))
-                    y.append(geometry.GetY(i))
+        for feat in layer:
+            geom = feat.GetGeometryRef()
+            if geom is not None:
+                if geom.GetGeometryType() == ogr.wkbPoint:
+                    x, y, _ = geom.GetPoint()
+                    x_coords.append(x)
+                    y_coords.append(y)
+                elif geom.GetGeometryType() in [ogr.wkbLineString, ogr.wkbMultiLineString]:
+                    for i in range(geom.GetPointCount()):
+                        x, y, _ = geom.GetPoint(i)
+                        x_coords.append(x)
+                        y_coords.append(y)
 
-                # Plot the line
-                plt.plot(x, y, label=f"Layer {layer_idx + 1}")
+        if x_coords and y_coords:
+            x = x_coords
+            y = y_coords
+            plt.plot(x, y, label=f"Layer {layer_idx + 1}")
 
     plt.xlabel("X")
     plt.ylabel("Y")
@@ -149,5 +141,7 @@ def matplot(dxf_datasource=None):
     plt.show()
 
 
-# matplot(dxf_datasource)
-dxf2shp(dxf_file_path, shp_file_path)
+if __name__ == "__main__":
+    dxf_file = "path/to/your/file.dxf"
+    shp_file = "path/to/output/file.shp"
+    convert(dxf_file, shp_file)

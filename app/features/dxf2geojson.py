@@ -1,14 +1,44 @@
-import geopandas as gpd
-
+from osgeo import ogr
+import os
 
 def convert_to_geojson(dxfFile, geojsonFile):
-    gdf = gpd.read_file(dxfFile)
+    try:
+        dxf_ds = ogr.Open(dxfFile)
+        if dxf_ds is None:
+            return -1
 
-    # Save to a single GeoJSON file
-    gdf.to_file(geojsonFile, driver="GeoJSON")
+        geojson_drv = ogr.GetDriverByName("GeoJSON")
+        if geojson_drv is None:
+            return -1
 
-    return 0
+        if os.path.exists(geojsonFile):
+            geojson_drv.DeleteDataSource(geojsonFile)
 
+        geojson_ds = geojson_drv.CreateDataSource(geojsonFile)
+        if geojson_ds is None:
+            return -1
+
+        layer = geojson_ds.CreateLayer("features", None, ogr.wkbUnknown)
+
+        feature_count = 0
+        for dxf_layer in dxf_ds:
+            dxf_layer.ResetReading()
+            for feat in dxf_layer:
+                geom = feat.GetGeometryRef()
+                if geom is None:
+                    continue
+
+                new_feat = ogr.Feature(layer.GetLayerDefn())
+                new_feat.SetGeometry(geom)
+                layer.CreateFeature(new_feat)
+                feature_count += 1
+
+        print(f"Success: {geojsonFile} ({feature_count} features)")
+        return 0
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return -1
 
 def dxf2geojson(dxf_file_path=None, geojson_file_path=None):
     dxf_name = dxf_file_path
