@@ -9,3 +9,4 @@ uvicorn
 python-multipart
 black
 flake8
+aspose-cad
