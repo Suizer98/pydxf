@@ -2,13 +2,24 @@ import os
 import aspose.cad as cad
 from aspose.cad.imageoptions import DxfOptions
 
-dwg_file_path = os.path.join(os.getcwd(), "WO_1901_015", "KHT00219_P1.dwg")
-dxf_file_path = os.path.splitext(dwg_file_path)[0] + "_aspose.dxf"
+def convert_dwg_to_dxf(dwg_file, dxf_file):
+    try:
+        image = cad.Image.load(dwg_file)
+        dxf_options = DxfOptions()
+        dxf_options.text_as_lines = False
+        dxf_options.pretty_formatting = False
+        dxf_options.convert_text_beziers = True
+        dxf_options.merge_lines_inside_contour = False
+        dxf_options.bezier_point_count = 16
+        
+        image.save(dxf_file, dxf_options)
+        print(f"Success: {dxf_file}")
+        return True
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
 
-try:
-    image = cad.Image.load(dwg_file_path)
-    dxf_options = DxfOptions()
-    image.save(dxf_file_path, dxf_options)
-    print(f"Success: {dxf_file_path}")
-except Exception as e:
-    print(f"Error: {e}")
+if __name__ == "__main__":
+    dwg_file = "path/to/your/file.dwg"
+    dxf_file = "path/to/output/file.dxf"
+    convert_dwg_to_dxf(dwg_file, dxf_file)
