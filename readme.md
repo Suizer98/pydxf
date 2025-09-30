@@ -3,35 +3,57 @@
 [[_TOC_]]
 
 ## Description
-To enable showing of dxf and dwg engineering CAD files on webgis in the future.
-This project demostrates a concept to spin up a mini converter api in backend as microservice.
+Convert DXF and DWG engineering CAD files to GeoJSON and Shapefile formats for web GIS applications.
+This project provides a microservice API for on-demand conversion of CAD files.
 
 Tech stacks:
 
 ![Tech stacks](https://skillicons.dev/icons?i=fastapi,python,docker,ubuntu,bash,autocad)
 
-### How to access features
+### Features
 
-- Geojson
-- Shapefile
+- **DWG Support**: Convert DWG files using Aspose.CAD
+- **DXF Support**: Convert DXF files using OGR
+- **Output Formats**: GeoJSON and Shapefile
 
-1. Go to [http://localhost:8000/pydxf](http://localhost:8000/pydxf) and swagger-ui will be shown.
-2. To upload dxf file and convert it, in swagger-ui go to [pydxf/geojson/upload](http://localhost:8000/pydxf/geojson/upload) part
-3. After uploading, it will undergo conversion and store in `root/data` folder (or database as you customise it)
-4. To download the geojson, go to swagger-ui part of [pydxf/geojson/download](http://localhost:8000/pydxf/geojson/download)
+### API Endpoints
+
+1. **Upload**: `POST /pydxf/upload` - Upload DXF or DWG files
+2. **List Files**: `GET /pydxf/files` - List uploaded files with download links
+3. **Download GeoJSON**: `GET /pydxf/geojson/download?filename=file.dxf` - Download as GeoJSON
+4. **Download Shapefile**: `GET /pydxf/shp/download?filename=file.dwg` - Download as Shapefile (ZIP)
+
+### How to use
+
+1. Go to [http://localhost:8000/pydxf](http://localhost:8000/pydxf) for Swagger UI
+2. Upload DXF or DWG files using the upload endpoint
+3. Download converted files using the download endpoints
+4. Files are stored in `data/Files/` and converted outputs in `data/Output/`
 
 ### Local development
 
-You may create your own local environment using command below:
+Start the service:
+```bash
+docker-compose up --build
+```
 
-```docker-compose up --build```
+The API will be available at `http://localhost:8000/pydxf`
+
+### Dependencies
+
+- **Aspose.CAD**: For DWG to DXF conversion
+- **GDAL/OGR**: For DXF processing and GeoJSON/Shapefile output
+- **FastAPI**: Web framework
+- **Docker**: Containerization
 
 ### Code formatting
 
-To liaise with py code formatting tool *black* standard, run:
+Format code with *black*:
+```bash
+docker exec pydxf black .
+```
 
-```docker exec pydxf black .```
-
-Check and remove unused modules with *flake8*:
-
-```docker exec pydxf flake8 .```
+Check code quality with *flake8*:
+```bash
+docker exec pydxf flake8 .
+```
