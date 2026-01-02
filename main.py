@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from starlette.responses import RedirectResponse
+from scalar_fastapi import get_scalar_api_reference
 
 import uvicorn
 
@@ -12,7 +13,17 @@ app = FastAPI()
 
 @app.get("/")
 def root_route():
-    return RedirectResponse(url="/docs/")
+    return RedirectResponse(url="/scalar/")
+
+
+@app.get("/scalar/", include_in_schema=False)
+async def scalar_html():
+    return get_scalar_api_reference(
+        openapi_url=app.openapi_url,
+        title="PyDXF API Documentation",
+        # Don't use proxy for local development - allows direct file uploads
+        scalar_proxy_url="",
+    )
 
 
 @app.get("/pydxf/")

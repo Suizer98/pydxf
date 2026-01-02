@@ -25,7 +25,7 @@ Tech stacks:
 
 ### How to use
 
-1. Go to [http://localhost:8000/pydxf](http://localhost:8000/pydxf) for Swagger UI
+1. Go to [http://localhost:8000/docs](http://localhost:8000/docs) for Swagger UI, or go to [http://localhost:8000/scalar/](http://localhost:8000/scalar/) for Scalar API documentation
 2. Upload DXF or DWG files using the upload endpoint
 3. Download converted files using the download endpoints
 4. Files are stored in `data/Files/` and converted outputs in `data/Output/`
