@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH /usr/local/bin:$PATH
 
@@ -15,6 +15,7 @@ RUN set -xe \
 
 # Copy requirements.txt and GDAL wheel file to the container
 COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN pip install --upgrade numpy pandas
 
