@@ -20,7 +20,7 @@ async def upload_file(file: UploadFile):
         f.write(file.file.read())
     
     return {
-        "message": f"{file_extension.upper()} file uploaded successfully. Conversion will happen on download.",
+        "message": f"{file_extension.upper()} file uploaded successfully.",
         "file_name": file.filename,
         "file_type": file_extension
     }
