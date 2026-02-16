@@ -10,4 +10,3 @@ python-multipart
 scalar-fastapi
 black
 flake8
-aspose-cad
