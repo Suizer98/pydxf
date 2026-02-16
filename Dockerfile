@@ -3,17 +3,32 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH /usr/local/bin:$PATH
 
 WORKDIR /app
-ADD . /app
 
-# Install required packages, add the PPA repository, and install Python 3.11, and other packages
+# Install required packages and build dependencies for LibreDWG
 RUN set -xe \
     && apt-get update -y --no-install-recommends \
     && apt-get install -y --no-install-recommends \
         python3-pip \
         gdal-bin \
-        libgdal-dev
+        libgdal-dev \
+        git \
+        build-essential \
+        autoconf \
+        automake \
+        libtool \
+        texinfo
 
-# Copy requirements.txt and GDAL wheel file to the container
+# Build and install LibreDWG (provides dwg2dxf command)
+RUN git clone --depth 1 https://github.com/LibreDWG/libredwg.git /tmp/libredwg \
+    && cd /tmp/libredwg \
+    && sh autogen.sh \
+    && ./configure --disable-bindings \
+    && make \
+    && make install \
+    && ldconfig \
+    && rm -rf /tmp/libredwg
+
+# Copy requirements.txt and install Python packages
 COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
