@@ -101,13 +101,13 @@ def dxf2shp(dxf_file_path=None, shp_file_path=None):
     print(res)
     if res == 0:
         # load the shape
-        (shpdir, shpfile) = path.split(target_name)
+        shpdir, shpfile = path.split(target_name)
         print(f"{shpdir} {shpfile} is created")
 
 
 def matplot(dxf_datasource):
     import matplotlib.pyplot as plt
-    
+
     plt.figure(figsize=(10, 8))
     for layer_idx in range(dxf_datasource.GetLayerCount()):
         layer = dxf_datasource.GetLayerByIndex(layer_idx)
@@ -123,7 +123,10 @@ def matplot(dxf_datasource):
                     x, y, _ = geom.GetPoint()
                     x_coords.append(x)
                     y_coords.append(y)
-                elif geom.GetGeometryType() in [ogr.wkbLineString, ogr.wkbMultiLineString]:
+                elif geom.GetGeometryType() in [
+                    ogr.wkbLineString,
+                    ogr.wkbMultiLineString,
+                ]:
                     for i in range(geom.GetPointCount()):
                         x, y, _ = geom.GetPoint(i)
                         x_coords.append(x)

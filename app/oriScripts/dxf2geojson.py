@@ -1,6 +1,7 @@
 from osgeo import ogr
 import os
 
+
 def convert_dxf_to_geojson(dxf_file, geojson_file):
     try:
         dxf_ds = ogr.Open(dxf_file)
@@ -40,8 +41,10 @@ def convert_dxf_to_geojson(dxf_file, geojson_file):
         print(f"Error: {e}")
         return False
 
+
 def dxf2geojson(dxf_file_path, geojson_file_path):
     convert_dxf_to_geojson(dxf_file_path, geojson_file_path)
+
 
 if __name__ == "__main__":
     dxf_file = "path/to/your/file.dxf"
