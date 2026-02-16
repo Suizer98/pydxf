@@ -1,8 +1,11 @@
 from os import path
-from osgeo import ogr
+from osgeo import ogr, gdal
 import re
 
+
 def convert(dxfFile, shpFile, layerFilter=".*"):
+    gdal.PushErrorHandler("CPLQuietErrorHandler")
+
     if path.exists(shpFile):
         drv = ogr.GetDriverByName("ESRI Shapefile")
         drv.DeleteDataSource(shpFile)
@@ -10,6 +13,7 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
     drv = ogr.GetDriverByName("ESRI Shapefile")
     ds = ogr.Open(dxfFile)
     if ds is None:
+        gdal.PopErrorHandler()
         return -1
 
     unique_geometry_types = set()
@@ -37,6 +41,7 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
         shp_layer_file = shpFile.replace(".shp", f"_{geom_type}.shp")
         do = drv.CreateDataSource(shp_layer_file)
         if do is None:
+            gdal.PopErrorHandler()
             return 1
         lyro = do.CreateLayer("out", None, ogr.wkbUnknown)
 
@@ -58,12 +63,17 @@ def convert(dxfFile, shpFile, layerFilter=".*"):
                         feato = ogr.Feature(lyro.GetLayerDefn())
                         feato.SetGeometry(geom)
 
+                        feat_defn = feat.GetDefnRef()
                         for field_name in field_names:
-                            feato.SetField(field_name, feat.GetField(field_name))
+                            idx = feat_defn.GetFieldIndex(field_name)
+                            if idx >= 0:
+                                feato.SetField(field_name, feat.GetField(idx))
 
                         lyro.CreateFeature(feato)
 
+    gdal.PopErrorHandler()
     return 0
+
 
 def dxf2shp(dxf_file_path=None, shp_file_path=None):
     dxf_name = dxf_file_path
@@ -71,7 +81,7 @@ def dxf2shp(dxf_file_path=None, shp_file_path=None):
     dxf_layer_filter = ".*"
     res = convert(dxf_name, target_name, dxf_layer_filter)
     if res == 0:
-        (shpdir, shpfile) = path.split(target_name)
+        shpdir, shpfile = path.split(target_name)
         print(f"{shpdir} {shpfile} is created")
     else:
         print("Error occurred! Please check file format.")

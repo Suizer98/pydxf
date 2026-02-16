@@ -105,7 +105,7 @@ def dxf2shp(dxf_file_path=None, shp_file_path=None):
     res = convert(dxf_name, target_name, dxf_layer_filter)
     if res == 0:
         # load the shape
-        (shpdir, shpfile) = path.split(target_name)
+        shpdir, shpfile = path.split(target_name)
         print(f"{shpdir} {shpfile} is created")
     else:
         print("Error occurred! Please check file format.")
