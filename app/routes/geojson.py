@@ -49,7 +49,7 @@ async def download_geojson(filename: str):
         try:
             if file_extension == ".dwg":
                 dxf_file_path = os.path.join(
-                    f"{DATA_DIR}/Output", base_filename + ".dxf"
+                    f"{DATA_DIR}/Output", base_filename + "_dwg.dxf"
                 )
                 if convert_dwg_to_dxf(original_file_path, dxf_file_path):
                     dxf2geojson(dxf_file_path, geojson_file_path)

@@ -48,6 +48,7 @@ async def list_uploaded_files():
                     "download_links": {
                         "shapefile": f"/pydxf/shp/download?filename={filename}",
                         "geojson": f"/pydxf/geojson/download?filename={filename}",
+                        "geopackage": f"/pydxf/gpkg/download?filename={filename}",
                     },
                 }
                 files.append(file_info)
