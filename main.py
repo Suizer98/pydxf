@@ -5,6 +5,7 @@ from scalar_fastapi import get_scalar_api_reference
 import uvicorn
 
 from app.routes.geojson import router as geojson_router
+from app.routes.geopackage import router as gpkg_router
 from app.routes.shapefiles import router as shp_router
 from app.routes.upload import router as upload_router
 
@@ -33,6 +34,7 @@ def main_route():
 
 # Include the router under the '/pydxf' path
 app.include_router(geojson_router, prefix="/pydxf")
+app.include_router(gpkg_router, prefix="/pydxf")
 app.include_router(shp_router, prefix="/pydxf")
 app.include_router(upload_router, prefix="/pydxf")
 

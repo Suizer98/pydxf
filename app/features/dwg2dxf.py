@@ -28,6 +28,10 @@ def convert_dwg_to_dxf(dwg_file_path, dxf_file_path):
 
 
 def dwg_to_dxf(dwg_file_path, dxf_file_path):
+    base, ext = os.path.splitext(dxf_file_path)
+    if not base.endswith("_dwg"):
+        dxf_file_path = f"{base}_dwg{ext}"
+
     success = convert_dwg_to_dxf(dwg_file_path, dxf_file_path)
 
     if success:
