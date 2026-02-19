@@ -3,7 +3,7 @@
 [[_TOC_]]
 
 ## Description
-Convert DXF and DWG engineering CAD files to GeoJSON and Shapefile formats for web GIS applications.
+Convert DXF and DWG engineering CAD files to GeoJSON, Shapefile, and GeoPackage formats for web GIS applications.
 This project provides a microservice API for on-demand conversion of CAD files.
 
 Tech stacks:
@@ -12,16 +12,18 @@ Tech stacks:
 
 ### Features
 
-- **DWG Support**: Convert DWG files using Aspose.CAD
-- **DXF Support**: Convert DXF files using OGR
-- **Output Formats**: GeoJSON and Shapefile
+- DWG Support: Convert DWG files using LibreDWG
+- DXF Support: Convert DXF files using OGR
+- Output Formats: GeoJSON, Shapefile, and GeoPackage
+- Annotation Support: GeoPackage output preserves text/label attributes from DXF annotations
 
 ### API Endpoints
 
-1. **Upload**: `POST /pydxf/upload` - Upload DXF or DWG files
-2. **List Files**: `GET /pydxf/files` - List uploaded files with download links
-3. **Download GeoJSON**: `GET /pydxf/geojson/download?filename=file.dxf` - Download as GeoJSON
-4. **Download Shapefile**: `GET /pydxf/shp/download?filename=file.dwg` - Download as Shapefile (ZIP)
+1. Upload: `POST /pydxf/upload` - Upload DXF or DWG files
+2. List Files: `GET /pydxf/files` - List uploaded files with download links
+3. Download GeoJSON: `GET /pydxf/geojson/download?filename=file.dxf` - Download as GeoJSON
+4. Download Shapefile: `GET /pydxf/shp/download?filename=file.dwg` - Download as Shapefile (ZIP)
+5. Download GeoPackage: `GET /pydxf/gpkg/download?filename=file.dxf` - Download as GeoPackage
 
 ### How to use
 
@@ -41,10 +43,10 @@ The API will be available at `http://localhost:8000/pydxf`
 
 ### Dependencies
 
-- **Aspose.CAD**: For DWG to DXF conversion
-- **GDAL/OGR**: For DXF processing and GeoJSON/Shapefile output
-- **FastAPI**: Web framework
-- **Docker**: Containerization
+- LibreDWG: For DWG to DXF conversion
+- GDAL/OGR: For DXF processing and GeoJSON/Shapefile/GeoPackage output
+- FastAPI: Web framework
+- Docker: Containerization
 
 ### Code formatting
 
