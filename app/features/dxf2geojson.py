@@ -1,5 +1,6 @@
-from osgeo import ogr
 import os
+
+from osgeo import ogr
 
 
 def convert_to_geojson(dxfFile, geojsonFile):

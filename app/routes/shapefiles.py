@@ -1,11 +1,14 @@
-from fastapi.responses import StreamingResponse
-from fastapi import HTTPException, APIRouter
-import os
+import asyncio
 import io
+import os
+import shutil
+
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 import zipfile
 from app.common import DATA_DIR, ensure_data_dirs
 from app.features.dxf2shp import dxf2shp
-from app.features.dwg2shp import dwg_to_shp
+from app.features.dwg2dxf import convert_dwg_to_dxf, dwg_conversion_response_headers
 
 router = APIRouter()
 
@@ -13,6 +16,7 @@ router = APIRouter()
 @router.get("/shp/download")
 async def download_shapefiles(filename: str):
     ensure_data_dirs()
+    dwg_step = None
     base_filename = filename.replace(".shp", "")
     shp_filename = f"{base_filename}.shp"
 
@@ -30,7 +34,7 @@ async def download_shapefiles(filename: str):
     if not matching_shapefiles:
         if "original_filename" not in locals():
             original_filename = base_filename
-            possible_extensions = [".dxf", ".dwg"]
+            possible_extensions = [".dwg", ".dxf"]
             for ext in possible_extensions:
                 original_file_path = os.path.join(
                     f"{DATA_DIR}/Files", original_filename + ext
@@ -50,15 +54,15 @@ async def download_shapefiles(filename: str):
                     f"{DATA_DIR}/Output", f"{base_filename}_dwg.shp"
                 )
 
-                from app.features.dwg2dxf import convert_dwg_to_dxf
-
-                dwg_success = convert_dwg_to_dxf(original_file_path, dxf_file_path)
-                if not dwg_success:
+                dwg_step = await asyncio.to_thread(
+                    convert_dwg_to_dxf, original_file_path, dxf_file_path
+                )
+                if not dwg_step.success:
                     raise HTTPException(
                         status_code=500, detail="Failed to convert DWG to DXF"
                     )
 
-                dxf2shp(dxf_file_path, shp_file_path_dwg)
+                await asyncio.to_thread(dxf2shp, dxf_file_path, shp_file_path_dwg)
             else:
                 dxf_filename = f"{base_filename}_dxf.dxf"
                 dxf_file_path = os.path.join(f"{DATA_DIR}/Output", dxf_filename)
@@ -66,10 +70,8 @@ async def download_shapefiles(filename: str):
                     f"{DATA_DIR}/Output", f"{base_filename}_dxf.shp"
                 )
 
-                import shutil
-
-                shutil.copy2(original_file_path, dxf_file_path)
-                dxf2shp(dxf_file_path, shp_file_path_dxf)
+                await asyncio.to_thread(shutil.copy2, original_file_path, dxf_file_path)
+                await asyncio.to_thread(dxf2shp, dxf_file_path, shp_file_path_dxf)
 
             for root, _, files in os.walk(f"{DATA_DIR}/Output"):
                 for file in files:
@@ -94,8 +96,12 @@ async def download_shapefiles(filename: str):
                         zipf.write(file_path, file)
 
     zip_buffer.seek(0)
+    out_headers = {
+        "Content-Disposition": f"attachment; filename={base_filename}.zip",
+        **dwg_conversion_response_headers(dwg_step),
+    }
     return StreamingResponse(
         content=zip_buffer,
         media_type="application/zip",
-        headers={"Content-Disposition": f"attachment; filename={base_filename}.zip"},
+        headers=out_headers,
     )

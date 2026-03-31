@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   pydxf:
     platform: linux/amd64
@@ -9,6 +7,9 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     image: pydxf
     container_name: pydxf
+    environment:
+      QCAD_HOME: /opt/qcadcam
+      QT_QPA_PLATFORM: offscreen
     volumes:
       - .:/app
     ports:

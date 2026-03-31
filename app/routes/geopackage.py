@@ -1,9 +1,11 @@
+import asyncio
+import os
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-import os
 from app.common import DATA_DIR, ensure_data_dirs
 from app.features.dxf2gpkg import dxf2gpkg
-from app.features.dwg2dxf import convert_dwg_to_dxf
+from app.features.dwg2dxf import convert_dwg_to_dxf, dwg_conversion_response_headers
 
 router = APIRouter()
 
@@ -22,10 +24,11 @@ async def download_geopackage(filename: str):
 
     gpkg_file_path = os.path.join(f"{DATA_DIR}/Output", gpkg_filename)
 
+    dwg_step = None
     if not os.path.exists(gpkg_file_path):
         if "original_filename" not in locals():
             original_filename = base_filename
-            possible_extensions = [".dxf", ".dwg"]
+            possible_extensions = [".dwg", ".dxf"]
             original_file_path = None
             file_extension = None
 
@@ -50,14 +53,17 @@ async def download_geopackage(filename: str):
                 dxf_file_path = os.path.join(
                     f"{DATA_DIR}/Output", base_filename + "_dwg.dxf"
                 )
-                if convert_dwg_to_dxf(original_file_path, dxf_file_path):
-                    dxf2gpkg(dxf_file_path, gpkg_file_path)
+                dwg_step = await asyncio.to_thread(
+                    convert_dwg_to_dxf, original_file_path, dxf_file_path
+                )
+                if dwg_step.success:
+                    await asyncio.to_thread(dxf2gpkg, dxf_file_path, gpkg_file_path)
                 else:
                     raise HTTPException(
                         status_code=500, detail="Failed to convert DWG to DXF"
                     )
             else:
-                dxf2gpkg(original_file_path, gpkg_file_path)
+                await asyncio.to_thread(dxf2gpkg, original_file_path, gpkg_file_path)
         except HTTPException:
             raise
         except Exception as e:
@@ -72,8 +78,12 @@ async def download_geopackage(filename: str):
                 detail="GeoPackage conversion failed - no output file created.",
             )
 
+    out_headers = {
+        "Content-Disposition": f"attachment; filename={gpkg_filename}",
+        **dwg_conversion_response_headers(dwg_step),
+    }
     return FileResponse(
         gpkg_file_path,
         media_type="application/geopackage+sqlite3",
-        headers={"Content-Disposition": f"attachment; filename={gpkg_filename}"},
+        headers=out_headers,
     )

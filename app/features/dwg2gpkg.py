@@ -7,8 +7,8 @@ def dwg_to_gpkg(dwg_file_path, gpkg_file_path):
     try:
         dxf_file_path = os.path.splitext(gpkg_file_path)[0] + "_dwg.dxf"
 
-        dwg_success = convert_dwg_to_dxf(dwg_file_path, dxf_file_path)
-        if not dwg_success:
+        dwg_res = convert_dwg_to_dxf(dwg_file_path, dxf_file_path)
+        if not dwg_res.success:
             return {
                 "success": False,
                 "message": "Failed to convert DWG to DXF",

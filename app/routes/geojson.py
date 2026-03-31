@@ -1,9 +1,11 @@
+import asyncio
+import os
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-import os
 from app.common import DATA_DIR, ensure_data_dirs
 from app.features.dxf2geojson import convert_to_geojson as dxf2geojson
-from app.features.dwg2dxf import convert_dwg_to_dxf
+from app.features.dwg2dxf import convert_dwg_to_dxf, dwg_conversion_response_headers
 
 router = APIRouter()
 
@@ -22,10 +24,12 @@ async def download_geojson(filename: str):
 
     geojson_file_path = os.path.join(f"{DATA_DIR}/Output", geojson_filename)
 
+    dwg_step = None
     if not os.path.exists(geojson_file_path):
         if "original_filename" not in locals():
             original_filename = base_filename
-            possible_extensions = [".dxf", ".dwg"]
+            # Prefer .dwg when both exist so we run QCAD→DXF instead of GDAL on a stale .dxf
+            possible_extensions = [".dwg", ".dxf"]
             original_file_path = None
             file_extension = None
 
@@ -37,7 +41,7 @@ async def download_geojson(filename: str):
                     break
         else:
             original_file_path = os.path.join(f"{DATA_DIR}/Files", original_filename)
-            file_extension = original_filename.lower().split(".")[-1]
+            file_extension = "." + original_filename.lower().split(".")[-1]
 
         if not original_file_path or not os.path.exists(original_file_path):
             raise HTTPException(
@@ -50,14 +54,24 @@ async def download_geojson(filename: str):
                 dxf_file_path = os.path.join(
                     f"{DATA_DIR}/Output", base_filename + "_dwg.dxf"
                 )
-                if convert_dwg_to_dxf(original_file_path, dxf_file_path):
-                    dxf2geojson(dxf_file_path, geojson_file_path)
+                dwg_step = await asyncio.to_thread(
+                    convert_dwg_to_dxf, original_file_path, dxf_file_path
+                )
+                if dwg_step.success:
+                    await asyncio.to_thread(
+                        dxf2geojson, dxf_file_path, geojson_file_path
+                    )
                 else:
                     raise HTTPException(
-                        status_code=500, detail="Failed to convert DWG to DXF"
+                        status_code=500,
+                        detail=f"Failed to convert DWG to DXF: {dwg_step.error_message or 'unknown error'}",
                     )
             else:
-                dxf2geojson(original_file_path, geojson_file_path)
+                await asyncio.to_thread(
+                    dxf2geojson, original_file_path, geojson_file_path
+                )
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=500,
@@ -70,8 +84,12 @@ async def download_geojson(filename: str):
                 detail="GeoJSON conversion failed - no output file created.",
             )
 
+    out_headers = {
+        "Content-Disposition": f"attachment; filename={geojson_filename}",
+        **dwg_conversion_response_headers(dwg_step),
+    }
     return FileResponse(
         geojson_file_path,
         media_type="application/geo+json",
-        headers={"Content-Disposition": f"attachment; filename={geojson_filename}"},
+        headers=out_headers,
     )
