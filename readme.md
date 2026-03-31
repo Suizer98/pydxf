@@ -12,10 +12,11 @@ Tech stacks:
 
 ### Features
 
-- DWG Support: Convert DWG files using LibreDWG
-- DXF Support: Convert DXF files using OGR
+- DWG Support: Convert DWG files to DXF using QCAD `dwg2dwg`
+- DXF Support: Convert DXF files using OGR/GDAL
 - Output Formats: GeoJSON, Shapefile, and GeoPackage
 - Annotation Support: GeoPackage output preserves text/label attributes from DXF annotations
+- Data Directories: auto-create `data/Files` and `data/Output` at runtime
 
 ### API Endpoints
 
@@ -36,26 +37,40 @@ Tech stacks:
 
 Start the service:
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 The API will be available at `http://localhost:8000/pydxf`
 
+### QCAD installer source
+
+The Dockerfile fetches the Linux QCAD installer at build time. You can get the same `.run` file from the QCAD download page: https://www.qcad.org/en/download
+
+### Manual DWG to DXF test in container
+
+Use this to verify QCAD conversion directly:
+```bash
+docker exec -it pydxf bash
+mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
+cd "$QCAD_HOME"
+./dwg2dwg -f -o /tmp/manual.dxf /app/data/Files/KHT00219_P1.dwg
+```
+
 ### Dependencies
 
-- LibreDWG: For DWG to DXF conversion
+- QCAD `dwg2dwg`: For DWG to DXF conversion
 - GDAL/OGR: For DXF processing and GeoJSON/Shapefile/GeoPackage output
 - FastAPI: Web framework
 - Docker: Containerization
 
 ### Code formatting
 
-Format code with *black*:
+Format code with black:
 ```bash
 docker exec pydxf black .
 ```
 
-Check code quality with *flake8*:
+Check code quality with flake8:
 ```bash
 docker exec pydxf flake8 .
 ```
