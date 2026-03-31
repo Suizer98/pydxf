@@ -3,14 +3,14 @@ from fastapi.responses import JSONResponse
 import os
 from datetime import datetime
 
+from app.common import DATA_DIR, ensure_data_dirs
+
 router = APIRouter()
-DATA_DIR = "data"
-os.makedirs(f"{DATA_DIR}/Files", exist_ok=True)
-os.makedirs(f"{DATA_DIR}/Output", exist_ok=True)
 
 
 @router.post("/upload")
 async def upload_file(file: UploadFile):
+    ensure_data_dirs()
     file_extension = file.filename.lower().split(".")[-1]
 
     if file_extension not in ["dxf", "dwg"]:

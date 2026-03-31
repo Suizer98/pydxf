@@ -1,17 +1,16 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 import os
+from app.common import DATA_DIR, ensure_data_dirs
 from app.features.dxf2gpkg import dxf2gpkg
 from app.features.dwg2dxf import convert_dwg_to_dxf
 
 router = APIRouter()
-DATA_DIR = "data"
-os.makedirs(f"{DATA_DIR}/Files", exist_ok=True)
-os.makedirs(f"{DATA_DIR}/Output", exist_ok=True)
 
 
 @router.get("/gpkg/download")
 async def download_geopackage(filename: str):
+    ensure_data_dirs()
     base_filename = filename.replace(".gpkg", "")
 
     if filename.lower().endswith((".dxf", ".dwg")):

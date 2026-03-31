@@ -3,17 +3,16 @@ from fastapi import HTTPException, APIRouter
 import os
 import io
 import zipfile
+from app.common import DATA_DIR, ensure_data_dirs
 from app.features.dxf2shp import dxf2shp
 from app.features.dwg2shp import dwg_to_shp
 
 router = APIRouter()
-DATA_DIR = "data"
-os.makedirs(f"{DATA_DIR}/Files", exist_ok=True)
-os.makedirs(f"{DATA_DIR}/Output", exist_ok=True)
 
 
 @router.get("/shp/download")
 async def download_shapefiles(filename: str):
+    ensure_data_dirs()
     base_filename = filename.replace(".shp", "")
     shp_filename = f"{base_filename}.shp"
 
