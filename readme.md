@@ -51,9 +51,9 @@ The Dockerfile fetches the Linux QCAD installer at build time. You can get the s
 Use this to verify QCAD conversion directly:
 ```bash
 docker exec -it pydxf bash
-mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
-cd "$QCAD_HOME"
-./dwg2dwg -f -o /tmp/manual.dxf /app/data/Files/KHT00219_P1.dwg
+
+root@28cd6f925f61:/app cd "$QCAD_HOME"
+root@28cd6f925f61:/opt/qcadcam ./dwg2dwg -f -o /tmp/manual.dxf /app/data/Files/KHT00219_P1.dwg
 ```
 
 ### Dependencies
