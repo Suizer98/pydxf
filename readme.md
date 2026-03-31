@@ -16,7 +16,7 @@ Tech stacks:
 - DXF Support: Convert DXF files using OGR/GDAL
 - Output Formats: GeoJSON, Shapefile, and GeoPackage
 - Annotation Support: GeoPackage output preserves text/label attributes from DXF annotations
-- Data Directories: auto-create `data/Files` and `data/Output` at runtime
+- Data Directories: Place that stores all the uploaded files and converted files
 
 ### API Endpoints
 
