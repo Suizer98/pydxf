@@ -53,7 +53,7 @@ Use this to verify QCAD conversion directly:
 docker exec -it pydxf bash
 
 root@28cd6f925f61:/app cd "$QCAD_HOME"
-root@28cd6f925f61:/opt/qcadcam ./dwg2dwg -f -o /tmp/manual.dxf /app/data/Files/KHT00219_P1.dwg
+root@28cd6f925f61:/opt/qcadcam ./dwg2dwg -f -o /tmp/manual.dxf /app/data/Files/sample.dwg
 ```
 
 ### Dependencies
