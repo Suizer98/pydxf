@@ -74,3 +74,8 @@ Check code quality with flake8:
 ```bash
 docker exec pydxf flake8 .
 ```
+
+### TODO
+
+- Add a small database table to store file names (and related metadata).
+- Implement UUID-based identifiers for uploads and/or output artifacts.
