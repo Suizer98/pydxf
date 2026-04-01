@@ -119,9 +119,7 @@ async def downloadShapefiles(filename: str):
     zipPath = os.path.join(DATA_DIR, "Output", zipName)
 
     tmpdir = tempfile.mkdtemp()
-    cachedDwgDxfPath = os.path.join(
-        DATA_DIR, "Output", f"{baseFilename}_dwg.dxf"
-    )
+    cachedDwgDxfPath = os.path.join(DATA_DIR, "Output", f"{baseFilename}_dwg.dxf")
     try:
         if sourceKind == "dwg":
             dxfFilePath = os.path.join(tmpdir, f"{baseFilename}_dwg.dxf")

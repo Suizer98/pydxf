@@ -49,13 +49,17 @@ def dwg_conversion_response_headers(result: Optional[DwgConversionResult]) -> di
         "X-DWG-Conversion-Seconds": f"{result.duration_seconds:.3f}",
         "X-DWG-Conversion-Engine": result.engine,
         "X-DWG-Conversion-Note": "QCAD trial may add ~15s before work starts.",
-        "X-DWG-Process-Return-Code": str(result.returncode)
-        if result.returncode is not None
-        else "",
+        "X-DWG-Process-Return-Code": (
+            str(result.returncode) if result.returncode is not None else ""
+        ),
     }
     h = {k: v for k, v in h.items() if v}
     if not result.success and result.stderr:
-        s = " ".join(result.stderr.split()).encode("ascii", errors="replace").decode("ascii")[:200]
+        s = (
+            " ".join(result.stderr.split())
+            .encode("ascii", errors="replace")
+            .decode("ascii")[:200]
+        )
         if s:
             h["X-DWG-Stderr-Preview"] = s
     return h
@@ -154,9 +158,11 @@ def dwg_to_dxf(dwg_file_path, dxf_file_path):
     r = convert_dwg_to_dxf(dwg_file_path, dxf_file_path)
     return {
         "success": r.success,
-        "message": "DWG file converted to DXF successfully"
-        if r.success
-        else (r.error_message or "Failed to convert DWG to DXF"),
+        "message": (
+            "DWG file converted to DXF successfully"
+            if r.success
+            else (r.error_message or "Failed to convert DWG to DXF")
+        ),
         "output_file": dxf_file_path if r.success else None,
         "duration_seconds": r.duration_seconds,
         "engine": r.engine,
