@@ -35,12 +35,26 @@ Tech stacks:
 
 ### Local development
 
+#### With Docker (Recommended)
 Start the service:
 ```bash
 docker compose up --build
 ```
-
 The API will be available at `http://localhost:8000/pydxf`
+
+#### Locally with uv
+This project uses [uv](https://github.com/astral-sh/uv) for fast local dependency management.
+
+Sync dependencies:
+```bash
+uv sync
+```
+*Note: This will automatically use the Python version specified in `.python-version`.*
+
+Run the application:
+```bash
+uv run uvicorn main:app --reload
+```
 
 ### QCAD installer source
 
