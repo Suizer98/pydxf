@@ -7,10 +7,11 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     image: pydxf
     container_name: pydxf
-    environment:
-      QCAD_HOME: /opt/qcadcam
-      QT_QPA_PLATFORM: offscreen
     volumes:
-      - .:/app
+      - ./app:/app/app
+      - ./main.py:/app/main.py
+      - ./data:/app/data
+      - ./sample:/app/sample
+      - ./setup:/app/setup
     ports:
       - '8000:8000'

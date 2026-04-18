@@ -8,13 +8,19 @@ ENV QCAD_HOME=/opt/qcadcam
 ENV QT_QPA_PLATFORM=offscreen
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 WORKDIR /app
 
+# Install system dependencies
 RUN set -xe \
     && apt-get update -y --no-install-recommends \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         python3-pip \
+        python3-dev \
+        build-essential \
         gdal-bin \
         libgdal-dev \
         libx11-6 \
@@ -29,6 +35,7 @@ RUN set -xe \
     && chmod 700 /tmp/runtime-root \
     && rm -rf /var/lib/apt/lists/*
 
+# Install QCAD
 COPY setup/qcadcam-3.32.6-trial-linux-qt5.14-x86_64.run /tmp/qcad.run
 RUN set -xe \
     && chmod +x /tmp/qcad.run \
@@ -40,9 +47,14 @@ RUN set -xe \
        fi \
     && test -x /opt/qcadcam/dwg2dwg
 
-COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt \
-    && pip install --upgrade numpy pandas
+# COPY requirements.txt .
+# RUN pip install --upgrade pip \
+#     && pip install -r requirements.txt
+
+COPY pyproject.toml uv.lock .
+RUN uv sync --frozen --no-install-project --no-dev --python 3.11
 
 COPY . .
+
+# Place the virtual environment in the PATH
+ENV PATH="/app/.venv/bin:$PATH"

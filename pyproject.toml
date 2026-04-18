@@ -1,0 +1,24 @@
+[project]
+name = "pydxf"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "gdal==3.4.1",
+    "geopandas",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "python-multipart",
+    "scalar-fastapi",
+    "starlette",
+    "uvicorn",
+]
+
+[dependency-groups]
+dev = [
+    "black",
+    "flake8",
+]
